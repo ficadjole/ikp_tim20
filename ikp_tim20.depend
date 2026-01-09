@@ -1,0 +1,23 @@
+# depslib dependency file v1.0
+1767990983 source:c:\users\laptopt460s\desktop\ikp_tim20\main.c
+	<stdio.h>
+	<stdlib.h>
+	"definicijeHashMape.h"
+
+1767990263 c:\users\laptopt460s\desktop\ikp_tim20\implementacijahashmape.c
+	<stdlib.h>
+	<stdio.h>
+	<string.h>
+	"definicijeHashMape.h"
+
+1767990777 c:\users\laptopt460s\desktop\ikp_tim20\definicijehashmape.h
+	"strukture.h"
+
+1767987891 c:\users\laptopt460s\desktop\ikp_tim20\strukture.h
+
+1767990867 source:c:\users\laptopt460s\desktop\ikp_tim20\implementacijahashmape.c
+	<stdlib.h>
+	<stdio.h>
+	<string.h>
+	"definicijeHashMape.h"
+
