@@ -99,12 +99,29 @@ void delete(hashMap* hashmap, void *key){
         return;
 
 }
-Segment* search(hashMap* hashmap, void *key);
+
+Segment* search(hashMap* hashmap, void *key){
+
+    int hashMapIndex = hashFunction(hashmap,key);
+
+    List* trenutniElem = hashmap->lista[hashMapIndex];
+
+    while(trenutniElem!=NULL){
+        if(trenutniElem->key == key){
+            return trenutniElem->segment;
+        }
+        trenutniElem = trenutniElem->next;
+    }
+
+    return NULL;
+
+}
+
 void printHashMap(hashMap* hashmap){
 
     List* trenutniElem = NULL;
     Segment* trenutniSegment = NULL;
-    printf("-----------Ispis hashMape-----------\n");
+    printf("\n-----------Ispis hashMape-----------\n");
 
 
     for(int i = 0;i<hashmap->capacity;i++){
@@ -127,12 +144,45 @@ void printHashMap(hashMap* hashmap){
                 trenutniElem = trenutniElem->next;
             }
 
-
-
-
-
         }
 
     }
+
+}
+
+void testiranjeRada(){
+
+        hashMap hm;
+    createHashMap(&hm,2);
+
+    Segment* segment = malloc(sizeof(Segment));
+    segment->dostupnost = 1;
+    segment->adresa = segment;
+    segment->velicina = 0;
+
+    Segment* segment2 = malloc(sizeof(Segment));
+    segment2->dostupnost = 0;
+    segment2->adresa = segment2;
+    segment2->velicina = 0;
+
+    List lista;
+    setListNode(&lista,segment,segment);
+
+    setListNode(&lista,segment2,segment2);
+
+    insert(&hm,segment->adresa,segment);
+
+    insert(&hm,segment2->adresa,segment2);
+
+    printHashMap(&hm);
+
+    delete(&hm,segment2);
+
+    printHashMap(&hm);
+
+    Segment* seg = search(&hm,segment);
+
+    printf("\nDostupnost pronadjenog: %d\n",seg->dostupnost);
+
 
 }

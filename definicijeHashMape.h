@@ -10,5 +10,5 @@ void insert(hashMap* hashmap, void* key, Segment* value);
 void delete(hashMap* hashmap, void* key);
 Segment* search(hashMap* hashmap, void* key);
 void printHashMap(hashMap* hasmap);
-
+void testiranjeRada();
 #endif // DEFINICIJEHASHMAPE_H_INCLUDED
