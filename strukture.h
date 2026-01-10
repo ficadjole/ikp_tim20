@@ -9,6 +9,19 @@ typedef struct Segment{
 
 }Segment;
 
+typedef struct SegmentNode {
+    Segment data;
+    struct SegmentNode* next;
+    struct SegmentNode* prev; //dvostruko spregnuta lista
+}SegmentNode;
+
+typedef struct SegmentList{
+    SegmentNode* head;
+    SegmentNode* tail;
+    int freeCount; //broj slobodnih segmenata
+    int totalCount;
+}SegmentList;
+
 typedef struct List{
     void* key;//ovo ce biti adresa segmenta
     Segment* segment;
