@@ -5,15 +5,21 @@ typedef struct Segment{
 
     int dostupnost; //0 dostupno, 1 nije dostupno
     size_t velicina;
-    void* adresa;
+    void* adresa; //adresa samog segmenta
 
 }Segment;
+
+typedef struct List{
+    void* key;//ovo ce biti adresa segmenta
+    Segment* segment;
+    struct List* next;
+}List;
 
 typedef struct hashMap{
 
     int numOfElements;
     int capacity;
-    Segment* seg;
+    List** lista;//ovo je pocetna adresa liste
 
 }hashMap;
 
