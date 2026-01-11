@@ -2,45 +2,21 @@
 #include <stdlib.h>
 #include "definicijeHashMape.h"
 #include "definicijeListe.h"
+#include "funkcije.h"
 
-int main()
-{
-    //testiranje Liste
+int main() {
+    SegmentList mojHeap;
+    hashMap mojaMapa;
 
-    SegmentList mojaLista;
-    initSegmentList(&mojaLista);
+    initializeHeapManager(&mojHeap, &mojaMapa, 10);
 
-    printf("---Testiranje Liste Segmenata ---\n");
+    void* adresa1 = allocate_memory(&mojHeap, &mojaMapa, 100);
 
-    addSegmentToList(&mojaLista, 100);
-    addSegmentToList(&mojaLista, 500);
-    addSegmentToList(&mojaLista, 200);
+    void* adresa2 = allocate_memory(&mojHeap, &mojaMapa, 500);
 
-    printSegmentList(&mojaLista);
+    printf("\n--- Stanje nakon alokacija ---\n");
+    printSegmentList(&mojHeap);
+    printHashMap(&mojaMapa);
 
-    size_t trazenaVelicina = 300;
-    SegmentNode* pronadjen = findFirstFit(&mojaLista, trazenaVelicina);
-
-    if (pronadjen != NULL) {
-        printf("Pronadjen segment! Adresa: %p, Velicina: %zu\n",
-                pronadjen->data.adresa, pronadjen->data.velicina);
-
-
-        pronadjen->data.dostupnost = 1;
-        mojaLista.freeCount--;
-    } else {
-        printf("Nema dovoljno velikog slobodnog segmenta.\n");
-    }
-
-    printSegmentList(&mojaLista);
-
-    if (pronadjen != NULL) {
-        printf("\nBrisem pronadjeni segment iz liste...\n");
-        removeSegmentFromList(&mojaLista, pronadjen);
-    }
-
-    printSegmentList(&mojaLista);
-
-    testiranjeRada();
     return 0;
 }
