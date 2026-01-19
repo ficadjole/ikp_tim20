@@ -1,6 +1,6 @@
 >[!WARNING]
 ># Pokretanje projekat u VisualStudioCodu
->1. Uci u folder IKP
+>1. Uci u folder IKP i otvoriti terminal
 >2. Prvo ukucati: **_docker build -t gcc94-dev ._**
 >    * Kreirace gcc:9.4 image
 >3. Nakon toga kucati: **_docker run -it --rm --name gcc-dev --cap-add=SYS_PTRACE --security-opt seccomp=unconfined -v "${PWD}:/workspace" -w /workspace gcc94-dev_**
