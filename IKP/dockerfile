@@ -1,0 +1,14 @@
+FROM gcc:9.4
+
+WORKDIR /workspace
+
+# Debian Buster je EOL → koristi archive.debian.org
+RUN sed -i 's|deb.debian.org|archive.debian.org|g' /etc/apt/sources.list \
+ && sed -i 's|security.debian.org|archive.debian.org|g' /etc/apt/sources.list \
+ && sed -i '/buster-updates/d' /etc/apt/sources.list \
+ && echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/99no-check-valid \
+ && apt update \
+ && apt install -y gdb gdbserver \
+ && rm -rf /var/lib/apt/lists/*
+
+CMD ["/bin/bash"]
