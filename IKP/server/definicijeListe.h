@@ -7,6 +7,8 @@ void initSegmentList(SegmentList* list);
 void addSegmentToList(SegmentList* list, size_t size);
 SegmentNode* findFirstFit(SegmentList* list, size_t size);
 void removeSegmentFromList(SegmentList* list, SegmentNode* node);
+void removeDataFromSegment(SegmentNode* node);
+void findSegment(SegmentList* list, void* address);
 void printSegmentList(SegmentList* list);
 void testListe();
 

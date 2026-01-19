@@ -1,5 +1,8 @@
 #ifndef STRUKTURE_H_INCLUDED
 #define STRUKTURE_H_INCLUDED
+#define PORT 8080
+#define MAX 80
+#define SA struct sockaddr 
 
 typedef struct Segment{
 

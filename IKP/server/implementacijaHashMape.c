@@ -42,7 +42,7 @@ uint32_t hashFunction(hashMap* hashmap,void* address){
 
 void insert(hashMap* hashmap, void *key, Segment *value){
 
-    int hashMapIndex = hashFunction(hashmap,value);
+    int hashMapIndex = hashFunction(hashmap,key);
 
     List* newNode = (List*)malloc(sizeof(List));//kreirali novi deo liste;
 
@@ -62,6 +62,8 @@ void insert(hashMap* hashmap, void *key, Segment *value){
         hashmap->lista[hashMapIndex] = newNode;
 
     }
+
+    hashmap->numOfElements++;
 
     return;
 
@@ -130,15 +132,17 @@ void printHashMap(hashMap* hashmap){
 
         if(trenutniElem != NULL){
             printf("\nElementi na indexu: %d\n",i);
-            int brSeg = 1;
+            int brSeg = 0;
             while(trenutniElem != NULL){
                 if(trenutniElem->segment == NULL){
                 printf("Error: segment is NULL at index %d\n", i);
                 }else{
                     trenutniSegment = trenutniElem->segment;
-                    printf("\n--Segment br. %d--\n",brSeg);
-                    printf("Dostupnost: %d",trenutniSegment->dostupnost);
-
+                    printf("Segment [%d]: \n", brSeg);
+                    printf("  - Adresa: %p\n", trenutniSegment->adresa);
+                    printf("  - Velicina: %zu bajtova\n", trenutniSegment->velicina);
+                    printf("  - Status: %s\n", (trenutniSegment->dostupnost == 0) ? "SLOBODAN" : "ZAUZET");
+                    printf("--------------------------------------\n");
                 }
                 brSeg++;
                 trenutniElem = trenutniElem->next;

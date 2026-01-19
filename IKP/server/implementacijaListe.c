@@ -74,6 +74,33 @@ void removeSegmentFromList(SegmentList* list, SegmentNode* node) {
     free(node);
 }
 
+void removeDataFromSegment(SegmentNode* node) {
+
+    if(node == NULL) return;
+
+    node->data.dostupnost = 0;
+
+}
+
+void findSegment(SegmentList* list, void* address){
+
+    SegmentNode* current = list->head;
+
+    while(current != NULL) {
+        if(current->data.adresa == address){
+            
+            removeDataFromSegment(current);
+            list->freeCount++;
+            return;
+        }
+
+        current = current->next;
+    }
+    
+    
+
+}
+
 void printSegmentList(SegmentList* list) {
     SegmentNode* current = list->head;
     int i = 0;
