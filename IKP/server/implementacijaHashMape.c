@@ -68,38 +68,25 @@ void insert(hashMap* hashmap, void *key, Segment *value){
     return;
 
 };
-
 void delete(hashMap* hashmap, void *key){
+    int hashMapIndex = hashFunction(hashmap, key);
+    List* prethodniElem = NULL;
+    List* trenutniElem = hashmap->lista[hashMapIndex];
 
-        int hashMapIndex = hashFunction(hashmap,key);
-
-        List* prethodniElem = NULL;
-
-        List* trenutniElem = hashmap->lista[hashMapIndex];
-
-        while(trenutniElem != NULL){
-
-            if(strcmp((char*)key,(char*)trenutniElem->key)==0){
-
-                if(trenutniElem == hashmap->lista[hashMapIndex]){
-                    hashmap->lista[hashMapIndex] = trenutniElem->next;
-                }else{
-
-                    prethodniElem->next = trenutniElem->next;
-
-                }
-
-                free(trenutniElem);
-                break;
-
+    while(trenutniElem != NULL){
+        if(trenutniElem->key == key){ 
+            if(trenutniElem == hashmap->lista[hashMapIndex]){
+                hashmap->lista[hashMapIndex] = trenutniElem->next;
+            } else {
+                prethodniElem->next = trenutniElem->next;
             }
 
-            prethodniElem = trenutniElem;
-            trenutniElem = trenutniElem->next;
-
+            free(trenutniElem); 
+            return;
         }
-        return;
-
+        prethodniElem = trenutniElem;
+        trenutniElem = trenutniElem->next;
+    }
 }
 
 Segment* search(hashMap* hashmap, void *key){

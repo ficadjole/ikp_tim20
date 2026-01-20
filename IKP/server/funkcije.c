@@ -12,6 +12,7 @@ void initializeHeapManager(SegmentList* list, hashMap* map, int mapCapacity){
 }
 
 void* allocate_memory(SegmentList* list, hashMap* map, size_t size){
+   pthread_mutex_lock(&list->lock);
     SegmentNode* found = findFirstFit(list, size);
 
     if(found == NULL) {
@@ -27,6 +28,7 @@ void* allocate_memory(SegmentList* list, hashMap* map, size_t size){
 
     printf("Successfully alocated! Address: %p, Size: %zu\n", found->data.adresa, found->data.velicina);
 
+    pthread_mutex_unlock(&list->lock);
     return found->data.adresa;
 }
 
@@ -41,10 +43,13 @@ float calculateFragmentation(SegmentList* list){
 }
 
 void free_memory(SegmentList* list, hashMap* map, void *address){
+    pthread_mutex_lock(&list->lock);
 
     printf("\nPokazivac: %p\n",address);
     delete(map,address);
     findSegment(list,address);
+
+    pthread_mutex_unlock(&list->lock);
 
 }
 
@@ -69,6 +74,8 @@ char* parsingMessage (SegmentList* list, hashMap* map, char* buffer) {
     char *kod_str = buffer;
     char *vrednost = sep + 1;
 
+    vrednost[strcspn(vrednost, "\r\n")] = 0;
+
     switch (atoi(kod_str))
     {
     case 1:{
@@ -89,17 +96,22 @@ char* parsingMessage (SegmentList* list, hashMap* map, char* buffer) {
         
         break;
     }
-    case 2:{
-        
-        uintptr_t tmp = (uintptr_t)strtoull(vrednost,NULL,0);
-        if(tmp == 0) {
-            strcpy(buff, "[SERVER] Oslobadjanje neuspelo: Nevalidna adresa.\n");
-        } else {
-            adresa = (void*)tmp;
-            free_memory(list,map,adresa);
-            sprintf(buff, "[SERVER] Oslobadjanje uspelo. Memorija na adresi %p je oslobodjena.\n", adresa);
-        }
-        break;
+    case 2: {
+    char *clean_addr = vrednost;
+    while(*clean_addr == ' ') clean_addr++; 
+    clean_addr[strcspn(clean_addr, "\r\n ")] = 0; 
+
+    uintptr_t tmp = (uintptr_t)strtoull(clean_addr, NULL, 0);
+    void* adresa_za_free = (void*)tmp;
+
+    Segment* provera = search(map, adresa_za_free);
+    if (provera == NULL) {
+        sprintf(buff, "[SERVER] Greska: Adresa %p nije u mapi (proveri unos).\n", adresa_za_free);
+    } else {
+        free_memory(list, map, adresa_za_free);
+        sprintf(buff, "[SERVER] Oslobadjanje uspelo za adresu %p.\n", adresa_za_free);
+    }
+    break;
     }
     default:
         sprintf(buff, "[SERVER] Nepoznat kod (%s). Koristi 1 (Alloc) ili 2 (Free).\n", kod_str);
@@ -107,5 +119,4 @@ char* parsingMessage (SegmentList* list, hashMap* map, char* buffer) {
     }
 
     return buff;
-
 }

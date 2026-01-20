@@ -8,12 +8,10 @@
 #include "definicijeListe.h"
 #include "funkcije.h"
 
-void func(int connfd) 
-{   
-    SegmentList mojHeap;
-    hashMap mojaMapa;
+#include <pthread.h>
 
-    initializeHeapManager(&mojHeap, &mojaMapa, 10);
+void func(int connfd, SegmentList* mojHeap, hashMap* mojaMapa) 
+{   
 
     char buff[MAX]; 
     int n; 
@@ -30,7 +28,7 @@ void func(int connfd)
 
         printf("[LOG] Zahtev od klijenta: %s\n", buff);
 
-        char *msg = parsingMessage(&mojHeap,&mojaMapa,buff);
+        char *msg = parsingMessage(mojHeap,mojaMapa,buff);
         
         strcpy(buff,msg);
         free(msg);
@@ -42,7 +40,17 @@ void func(int connfd)
             break; 
         } 
     } 
-} 
+}
+
+void* client_handler(void* arg) {
+    thread_args_t* args = (thread_args_t*)arg;
+    func(args->connfd, args->mojHeap, args->mojaMapa);
+    
+    printf("[THREAD] Klijent na socketu %d se odjavio.\n", args->connfd);
+    close(args->connfd);
+    free(args);
+    return NULL;
+}
 
 
 int main() {
@@ -50,6 +58,11 @@ int main() {
     int sockfd, connfd, len;
 
     struct sockaddr_in servaddr,cli;
+
+    SegmentList mojHeap;
+    hashMap mojaMapa;
+    initializeHeapManager(&mojHeap, &mojaMapa, 10); //prebacila sam ovdje da bi se inicijalizovao zajednicki resurs samo jednom
+    pthread_mutex_init(&mojHeap.lock, NULL);
 
     sockfd = socket(AF_INET,SOCK_STREAM,0);
 
@@ -80,19 +93,35 @@ int main() {
     } 
     else
         printf("Server listening..\n"); 
-    len = sizeof(cli); 
-  
-    // Accept the data packet from client and verification 
-    connfd = accept(sockfd, (SA*)&cli, &len); 
-    if (connfd < 0) { 
-        printf("server accept failed...\n"); 
-        exit(0); 
-    } 
-    else
-        printf("server accept the client...\n"); 
-  
-    // Function for chatting between client and server 
-    func(connfd); 
+    
+    while(1) {
+        len = sizeof(cli);
+        // Accept the data packet from client and verification 
+        connfd = accept(sockfd, (SA*)&cli, &len);
+
+        if (connfd < 0) { 
+            printf("Server accept failed...\n"); 
+            continue;
+        } 
+
+        printf("[SERVER] Prihvacen novi klijent na soketu %d \n", connfd);
+
+        thread_args_t* args = malloc(sizeof(thread_args_t));
+        args->connfd = connfd;
+        args->mojHeap = &mojHeap;
+        args->mojaMapa = &mojaMapa;
+
+        pthread_t tid;
+        if(pthread_create(&tid, NULL, client_handler, args) != 0) {
+            perror("Thread creation failed");
+            free(args);
+            close(connfd);
+        }
+
+        pthread_detach(tid);
+    }
+
+    pthread_mutex_destroy(&mojHeap.lock);
 
     close(sockfd);
 

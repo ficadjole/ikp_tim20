@@ -4,6 +4,8 @@
 #define MAX 80
 #define SA struct sockaddr 
 
+#include <pthread.h>
+
 typedef struct Segment{
 
     int dostupnost; //0 dostupno, 1 nije dostupno
@@ -23,6 +25,7 @@ typedef struct SegmentList{
     SegmentNode* tail;
     int freeCount; //broj slobodnih segmenata
     int totalCount;
+    pthread_mutex_t lock;
 }SegmentList;
 
 typedef struct List{
@@ -38,6 +41,12 @@ typedef struct hashMap{
     List** lista;//ovo je pocetna adresa liste
 
 }hashMap;
+
+typedef struct {
+    int connfd;
+    struct SegmentList* mojHeap;
+    struct hashMap* mojaMapa;
+} thread_args_t;
 
 
 #endif // STRUKTURE_H_INCLUDED
