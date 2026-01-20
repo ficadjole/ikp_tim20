@@ -2,8 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <unistd.h>
 
 #include "funkcije.h"
+#include "definicijeListe.h"
 
 void initializeHeapManager(SegmentList* list, hashMap* map, int mapCapacity){
     initSegmentList(list);
@@ -14,7 +16,9 @@ void initializeHeapManager(SegmentList* list, hashMap* map, int mapCapacity){
 }
 
 void* allocate_memory(SegmentList* list, hashMap* map, size_t size){
+   //sleep(5); za testiranje
    pthread_mutex_lock(&list->lock);
+    printf("\n[ALLOCATION] ----------------------------------\n");
     SegmentNode* found = findFirstFit(list, size);
 
     if(found == NULL) {
@@ -31,6 +35,7 @@ void* allocate_memory(SegmentList* list, hashMap* map, size_t size){
     printf("Successfully alocated! Address: %p, Size: %zu\n", found->data.adresa, found->data.velicina);
 
     pthread_mutex_unlock(&list->lock);
+    printf("[THREAD %lu] Klijent je ZAVRSIO alokaciju.\n", (unsigned long)pthread_self());
     return found->data.adresa;
 }
 
@@ -47,12 +52,37 @@ float calculateFragmentation(SegmentList* list){
 void free_memory(SegmentList* list, hashMap* map, void *address){
     pthread_mutex_lock(&list->lock);
 
+    printf("\n[DEALLOCATION] ----------------------------------\n");
+    printf("[THREAD %lu] Pokrenut zahtev za oslobadjanje.\n", (unsigned long)pthread_self());
+    printf("[INFO] Ciljna adresa: %p\n", address);
+
     printf("\nPokazivac: %p\n",address);
     delete(map,address);
     findSegment(list,address);
 
+    if(list->freeCount > 5) {
+        cleanupSegments(list);
+    }
+
     pthread_mutex_unlock(&list->lock);
 
+}
+
+void cleanupSegments(SegmentList* list) {
+    while(list->freeCount > 5) {
+        SegmentNode* node = list->tail;
+
+        while(node != NULL && node->data.dostupnost != 0) {
+            node = node->prev;
+        }
+
+        if(node != NULL) {
+            removeSegmentFromList(list, node);
+            printf("[CLEANUP] Segmen uspesno uklonjen. Preostalo slobodnih: %d\n", list->freeCount);
+        } else {
+            break;
+        }
+    }
 }
 
 char* parsingMessage (SegmentList* list, hashMap* map, char* buffer) {
