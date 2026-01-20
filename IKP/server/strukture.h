@@ -25,6 +25,8 @@ typedef struct SegmentList{
     SegmentNode* tail;
     int freeCount; //broj slobodnih segmenata
     int totalCount;
+    int numberOfAllocations;
+    int numberOfDeallocations;  //broj alokacija i dealokacija
     pthread_mutex_t lock;
 }SegmentList;
 

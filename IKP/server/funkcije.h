@@ -10,5 +10,5 @@ float calculateFragmentation(SegmentList* list);
 void free_memory(SegmentList* list, hashMap* map, void *adresa);
 
 char* parsingMessage(SegmentList* list, hashMap* map,char*buffer);
-
+void printInstr(SegmentList* list);
 #endif // FUNKCIJE_H_INCLUDED

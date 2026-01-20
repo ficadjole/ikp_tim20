@@ -8,6 +8,8 @@
 void initializeHeapManager(SegmentList* list, hashMap* map, int mapCapacity){
     initSegmentList(list);
     createHashMap(map, mapCapacity);
+    list->numberOfAllocations = 0;
+    list->numberOfDeallocations = 0;
     printf("HeapManager started successfully.\n");
 }
 
@@ -91,6 +93,8 @@ char* parsingMessage (SegmentList* list, hashMap* map, char* buffer) {
                 strcpy(buff, "[SERVER] Alokacija neuspela: Nema memorije. \n");
             } else {
                 sprintf(buff,"[SERVER] Alokacija uspela. Alocirano %d bajtova na adresi: %p \n",velicina,adresa1);
+                list->numberOfAllocations++;
+                printInstr(list);
             }
         }
         
@@ -99,7 +103,7 @@ char* parsingMessage (SegmentList* list, hashMap* map, char* buffer) {
     case 2: {
     char *clean_addr = vrednost;
     while(*clean_addr == ' ') clean_addr++; 
-    clean_addr[strcspn(clean_addr, "\r\n ")] = 0; 
+    clean_addr[strcspn(clean_addr, "\r\n ")] = 0; //bez ovog nece lijepo da radi dealociranje
 
     uintptr_t tmp = (uintptr_t)strtoull(clean_addr, NULL, 0);
     void* adresa_za_free = (void*)tmp;
@@ -110,6 +114,8 @@ char* parsingMessage (SegmentList* list, hashMap* map, char* buffer) {
     } else {
         free_memory(list, map, adresa_za_free);
         sprintf(buff, "[SERVER] Oslobadjanje uspelo za adresu %p.\n", adresa_za_free);
+        list->numberOfDeallocations++;
+        printInstr(list);
     }
     break;
     }
@@ -119,4 +125,18 @@ char* parsingMessage (SegmentList* list, hashMap* map, char* buffer) {
     }
 
     return buff;
+}
+
+void printInstr(SegmentList* list) {
+    float fragm = 0.0;
+
+    if(list->totalCount > 0) {
+        fragm = calculateFragmentation(list);
+    }
+
+    printf("\n>>>> INSTRUMENTALIZACIJA SISTEMA <<<<\n");
+    printf("1) Ukupan broj alokacija:   %d\n", list->numberOfAllocations);
+    printf("2) Ukupan broj dealokacija: %d\n", list->numberOfDeallocations);
+    printf("3) Stepen fragmentacije:    %.2f%%\n", fragm);
+    printf("--------------------------------------\n");
 }

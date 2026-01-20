@@ -96,10 +96,9 @@ void findSegment(SegmentList* list, void* address){
 
         current = current->next;
     }
-    
-    
 
 }
+
 
 void printSegmentList(SegmentList* list) {
     SegmentNode* current = list->head;
