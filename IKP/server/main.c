@@ -21,11 +21,17 @@ void func(int connfd)
     for (;;) { 
         bzero(buff, MAX); 
   
-        read(connfd, buff, sizeof(buff)); 
+        int n = read(connfd, buff, sizeof(buff)); 
 
-        printf("From client: %s\t To client : ", buff); 
+        if( n <= 0) {
+            printf("[DISCONNECT] Klijent je zatvorio vezu.\n");
+            break;
+        }
+
+        printf("[LOG] Zahtev od klijenta: %s\n", buff);
 
         char *msg = parsingMessage(&mojHeap,&mojaMapa,buff);
+        
         strcpy(buff,msg);
         free(msg);
 

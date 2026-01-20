@@ -10,7 +10,7 @@
 
 >[!NOTE]
 ># Pokretanje servera
->gcc main.c funckije.c implementacijaListe.c implementacijaHashMape.c -o server<br/>
+>gcc main.c funkcije.c implementacijaListe.c implementacijaHashMape.c -o server<br/>
 >./server
 ># Pokretanje clienta
 >gcc main.c client.c -o client<br/>

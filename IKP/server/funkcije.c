@@ -55,8 +55,14 @@ char* parsingMessage (SegmentList* list, hashMap* map, char* buffer) {
     char *sep = strchr(buffer,'|');
     void *adresa = NULL;
 
+    if(strlen(buffer) < 1 || buffer[0] == '\n') {
+        strcpy(buff, "[SERVER] Greska: Poruka je prazna.\n");
+        return buff;
+    }
+
     if(!sep){
-        return NULL;
+        strcpy(buff, "[SERVER] Format Error: Koristi format KOD|VREDNOST npr. 1|100 \n");
+        return buff;
     }
 
     *sep='\0';
@@ -67,25 +73,36 @@ char* parsingMessage (SegmentList* list, hashMap* map, char* buffer) {
     {
     case 1:{
         
-        void* adresa1 = allocate_memory(list,map,atoi(vrednost));
-        
-        
-        sprintf(buff,"%x",adresa1);
+        int velicina = atoi(vrednost);
+
+        if(velicina <= 0) {
+            strcpy(buff, "[SERVER] Alokacija neuspela: Velicina mora biti veca od 0 \n");
+        } else {
+            void* adresa1 = allocate_memory(list,map,atoi(vrednost));
+
+            if(adresa1 == NULL) {
+                strcpy(buff, "[SERVER] Alokacija neuspela: Nema memorije. \n");
+            } else {
+                sprintf(buff,"[SERVER] Alokacija uspela. Alocirano %d bajtova na adresi: %p \n",velicina,adresa1);
+            }
+        }
         
         break;
     }
     case 2:{
         
         uintptr_t tmp = (uintptr_t)strtoull(vrednost,NULL,0);
-        
-        adresa = (void*)tmp;
-
-        free_memory(list,map,adresa);
-        strcpy(buff,"Uspesno ste oslobodili segment na zeljenoj adresi");
+        if(tmp == 0) {
+            strcpy(buff, "[SERVER] Oslobadjanje neuspelo: Nevalidna adresa.\n");
+        } else {
+            adresa = (void*)tmp;
+            free_memory(list,map,adresa);
+            sprintf(buff, "[SERVER] Oslobadjanje uspelo. Memorija na adresi %p je oslobodjena.\n", adresa);
+        }
         break;
     }
     default:
-        strcpy(buff, "Nepoznat kod");
+        sprintf(buff, "[SERVER] Nepoznat kod (%s). Koristi 1 (Alloc) ili 2 (Free).\n", kod_str);
         break;
     }
 
