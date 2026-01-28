@@ -27,7 +27,7 @@
 >
 > # Testiranje koda
 >
-> Potrebno je server/client kompajlirati sa dodatnim flagom **_-g_**
+> Potrebno je server/client kompajlirati sa dodatnim flagom **_-g_**<br/>
 > Nakon toga pokretanje se vrsi ovako:
 > Helgrind - testovi za threadove
 >
