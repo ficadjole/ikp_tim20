@@ -23,6 +23,22 @@
 > gcc main.c client.c -o client<br/>
 > ./client
 
+> [!NOTE]
+>
+> # Testiranje koda
+>
+> Potrebno je server/client kompajlirati sa dodatnim flagom **_-g_**
+> Nakon toga pokretanje se vrsi ovako:
+> Helgrind - testovi za threadove
+>
+> - valgrind --tool=helgrind --log-file=./testLog/helgrind.%p.txt ./server
+>
+> Memcheck - testovi za memoryleak
+>
+> - valgrind --tool=memcheck --log-file=./testLog/memcheck.%p.txt ./server
+>
+> %p ce predstavljati thread_id
+
 > [!TIP]
 >
 > # Gasenje dockera

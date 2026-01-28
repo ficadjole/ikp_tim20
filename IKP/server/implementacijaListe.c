@@ -104,31 +104,31 @@ void printSegmentList(SegmentList* list) {
     SegmentNode* current = list->head;
     int i = 0;
 
-    printf("\n======= PREGLED HEAP MEMORIJE =======\n");
-    printf("Ukupno segmenata: %d | Slobodnih: %d\n", list->totalCount, list->freeCount);
-    printf("--------------------------------------\n");
+    safePrint("\n======= PREGLED HEAP MEMORIJE =======\n");
+    safePrint("Ukupno segmenata: %d | Slobodnih: %d\n", list->totalCount, list->freeCount);
+    safePrint("--------------------------------------\n");
 
     if (current == NULL) {
-        printf("Lista je prazna.\n");
+        safePrint("Lista je prazna.\n");
         return;
     }
 
     while (current != NULL) {
-        printf("Segment [%d]: \n", i++);
-        printf("  - Adresa: %p\n", current->data.adresa);
-        printf("  - Velicina: %zu bajtova\n", current->data.velicina);
-        printf("  - Status: %s\n", (current->data.dostupnost == 0) ? "SLOBODAN" : "ZAUZET");
-        printf("--------------------------------------\n");
+        safePrint("Segment [%d]: \n", i++);
+        safePrint("  - Adresa: %p\n", current->data.adresa);
+        safePrint("  - Velicina: %zu bajtova\n", current->data.velicina);
+        safePrint("  - Status: %s\n", (current->data.dostupnost == 0) ? "SLOBODAN" : "ZAUZET");
+        safePrint("--------------------------------------\n");
         current = current->next;
     }
-    printf("======================================\n\n");
+    safePrint("======================================\n\n");
 }
 
 void testListe(){
      SegmentList mojaLista;
     initSegmentList(&mojaLista);
 
-    printf("---Testiranje Liste Segmenata ---\n");
+    safePrint("---Testiranje Liste Segmenata ---\n");
 
     addSegmentToList(&mojaLista, 100);
     addSegmentToList(&mojaLista, 500);
@@ -140,25 +140,35 @@ void testListe(){
     SegmentNode* pronadjen = findFirstFit(&mojaLista, trazenaVelicina);
 
     if (pronadjen != NULL) {
-        printf("Pronadjen segment! Adresa: %p, Velicina: %zu\n",
+        safePrint("Pronadjen segment! Adresa: %p, Velicina: %zu\n",
                 pronadjen->data.adresa, pronadjen->data.velicina);
 
 
         pronadjen->data.dostupnost = 1;
         mojaLista.freeCount--;
     } else {
-        printf("Nema dovoljno velikog slobodnog segmenta.\n");
+        safePrint("Nema dovoljno velikog slobodnog segmenta.\n");
     }
 
     printSegmentList(&mojaLista);
 
     if (pronadjen != NULL) {
-        printf("\nBrisem pronadjeni segment iz liste...\n");
+        safePrint("\nBrisem pronadjeni segment iz liste...\n");
         removeSegmentFromList(&mojaLista, pronadjen);
     }
 
     printSegmentList(&mojaLista);
 }
 
+void safePrint(char* poruka,...){
 
+    va_list args;
+    va_start(args, poruka);
+    
+    flockfile(stdout);
+        vprintf(poruka, args);
+    funlockfile(stdout);
+
+    va_end(args);
+}
 

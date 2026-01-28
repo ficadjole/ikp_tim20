@@ -12,17 +12,17 @@ void initializeHeapManager(SegmentList* list, hashMap* map, int mapCapacity){
     createHashMap(map, mapCapacity);
     list->numberOfAllocations = 0;
     list->numberOfDeallocations = 0;
-    printf("HeapManager started successfully.\n");
+    safePrint("HeapManager started successfully.\n");
 }
 
 void* allocate_memory(SegmentList* list, hashMap* map, size_t size){
    //sleep(5); za testiranje
    pthread_mutex_lock(&list->lock);
-    printf("\n[ALLOCATION] ----------------------------------\n");
+    safePrint("\n[ALLOCATION] ----------------------------------\n");
     SegmentNode* found = findFirstFit(list, size);
 
     if(found == NULL) {
-        printf("Free segment is not found. Allocating new...\n");
+        safePrint("Free segment is not found. Allocating new...\n");
         addSegmentToList(list, size);
         found = list->tail;
     }
@@ -32,10 +32,10 @@ void* allocate_memory(SegmentList* list, hashMap* map, size_t size){
 
     insert(map, found->data.adresa, &(found->data));
 
-    printf("Successfully alocated! Address: %p, Size: %zu\n", found->data.adresa, found->data.velicina);
+    safePrint("Successfully alocated! Address: %p, Size: %zu\n", found->data.adresa, found->data.velicina);
 
     pthread_mutex_unlock(&list->lock);
-    printf("[THREAD %lu] Klijent je ZAVRSIO alokaciju.\n", (unsigned long)pthread_self());
+    safePrint("[THREAD %lu] Klijent je ZAVRSIO alokaciju.\n", (unsigned long)pthread_self());
     return found->data.adresa;
 }
 
@@ -52,11 +52,11 @@ float calculateFragmentation(SegmentList* list){
 void free_memory(SegmentList* list, hashMap* map, void *address){
     pthread_mutex_lock(&list->lock);
 
-    printf("\n[DEALLOCATION] ----------------------------------\n");
-    printf("[THREAD %lu] Pokrenut zahtev za oslobadjanje.\n", (unsigned long)pthread_self());
-    printf("[INFO] Ciljna adresa: %p\n", address);
+    safePrint("\n[DEALLOCATION] ----------------------------------\n");
+    safePrint("[THREAD %lu] Pokrenut zahtev za oslobadjanje.\n", (unsigned long)pthread_self());
+    safePrint("[INFO] Ciljna adresa: %p\n", address);
 
-    printf("\nPokazivac: %p\n",address);
+    safePrint("\nPokazivac: %p\n",address);
     delete(map,address);
     findSegment(list,address);
 
@@ -78,7 +78,7 @@ void cleanupSegments(SegmentList* list) {
 
         if(node != NULL) {
             removeSegmentFromList(list, node);
-            printf("[CLEANUP] Segmen uspesno uklonjen. Preostalo slobodnih: %d\n", list->freeCount);
+            safePrint("[CLEANUP] Segmen uspesno uklonjen. Preostalo slobodnih: %d\n", list->freeCount);
         } else {
             break;
         }
@@ -123,7 +123,9 @@ char* parsingMessage (SegmentList* list, hashMap* map, char* buffer) {
                 strcpy(buff, "[SERVER] Alokacija neuspela: Nema memorije. \n");
             } else {
                 sprintf(buff,"[SERVER] Alokacija uspela. Alocirano %d bajtova na adresi: %p \n",velicina,adresa1);
+                pthread_mutex_lock(&list->lock);
                 list->numberOfAllocations++;
+                pthread_mutex_unlock(&list->lock);
                 printInstr(list);
             }
         }
@@ -138,13 +140,19 @@ char* parsingMessage (SegmentList* list, hashMap* map, char* buffer) {
     uintptr_t tmp = (uintptr_t)strtoull(clean_addr, NULL, 0);
     void* adresa_za_free = (void*)tmp;
 
+
+    pthread_mutex_lock(&list->lock);
     Segment* provera = search(map, adresa_za_free);
+    pthread_mutex_unlock(&list->lock);
+
     if (provera == NULL) {
         sprintf(buff, "[SERVER] Greska: Adresa %p nije u mapi (proveri unos).\n", adresa_za_free);
     } else {
         free_memory(list, map, adresa_za_free);
         sprintf(buff, "[SERVER] Oslobadjanje uspelo za adresu %p.\n", adresa_za_free);
+        pthread_mutex_lock(&list->lock);
         list->numberOfDeallocations++;
+        pthread_mutex_unlock(&list->lock);
         printInstr(list);
     }
     break;
@@ -158,15 +166,26 @@ char* parsingMessage (SegmentList* list, hashMap* map, char* buffer) {
 }
 
 void printInstr(SegmentList* list) {
+
+    pthread_mutex_lock(&list->lock);
+
     float fragm = 0.0;
 
     if(list->totalCount > 0) {
         fragm = calculateFragmentation(list);
     }
 
-    printf("\n>>>> INSTRUMENTALIZACIJA SISTEMA <<<<\n");
-    printf("1) Ukupan broj alokacija:   %d\n", list->numberOfAllocations);
-    printf("2) Ukupan broj dealokacija: %d\n", list->numberOfDeallocations);
-    printf("3) Stepen fragmentacije:    %.2f%%\n", fragm);
-    printf("--------------------------------------\n");
+    int nA = list->numberOfAllocations;
+    int nD = list->numberOfDeallocations;
+    float fg = fragm;
+
+    pthread_mutex_unlock(&list->lock);
+
+    safePrint("\n>>>> INSTRUMENTALIZACIJA SISTEMA <<<<\n");
+    safePrint("1) Ukupan broj alokacija:   %d\n", nA);
+    safePrint("2) Ukupan broj dealokacija: %d\n", nD);
+    safePrint("3) Stepen fragmentacije:    %.2f%%\n", fg);
+    safePrint("--------------------------------------\n");
+
+
 }

@@ -22,11 +22,11 @@ void func(int connfd, SegmentList* mojHeap, hashMap* mojaMapa)
         int n = read(connfd, buff, sizeof(buff)); 
 
         if( n <= 0) {
-            printf("[DISCONNECT] Klijent je zatvorio vezu.\n");
+            safePrint("[DISCONNECT] Klijent je zatvorio vezu.\n");
             break;
         }
 
-        printf("[LOG] Zahtev od klijenta: %s\n", buff);
+        safePrint("[LOG] Zahtev od klijenta: %s\n", buff);
 
         char *msg = parsingMessage(mojHeap,mojaMapa,buff);
         
@@ -36,7 +36,7 @@ void func(int connfd, SegmentList* mojHeap, hashMap* mojaMapa)
         write(connfd, buff, sizeof(buff)); 
   
         if (strncmp("exit", buff, 4) == 0) { 
-            printf("Server Exit...\n"); 
+            safePrint("Server Exit...\n"); 
             break; 
         } 
     } 
@@ -46,7 +46,7 @@ void* client_handler(void* arg) {
     thread_args_t* args = (thread_args_t*)arg;
     func(args->connfd, args->mojHeap, args->mojaMapa);
     
-    printf("[THREAD] Klijent na socketu %d se odjavio.\n", args->connfd);
+    safePrint("[THREAD] Klijent na socketu %d se odjavio.\n", args->connfd);
     close(args->connfd);
     free(args);
     return NULL;
@@ -67,10 +67,10 @@ int main() {
     sockfd = socket(AF_INET,SOCK_STREAM,0);
 
     if(sockfd == -1){
-        printf("Doslo je do greske prilikom kreiranja socketa\n");
+        safePrint("Doslo je do greske prilikom kreiranja socketa\n");
         exit(0);
     }else{
-        printf("Uspesno kreiran socket\n");
+        safePrint("Uspesno kreiran socket\n");
     }
 
     bzero(&servaddr,sizeof(servaddr));
@@ -80,19 +80,19 @@ int main() {
     servaddr.sin_port = htons(PORT);
 
     if((bind(sockfd,(SA*)&servaddr,sizeof(servaddr)))!=0){
-        printf("Bindovanje soketa je neuspelo!\n");
+        safePrint("Bindovanje soketa je neuspelo!\n");
         exit(0);
     }else{
-        printf("Uspesno smo bindovali socket\n");
+        safePrint("Uspesno smo bindovali socket\n");
     }
 
     // Now server is ready to listen and verification 
     if ((listen(sockfd, 5)) != 0) { 
-        printf("Listen failed...\n"); 
+        safePrint("Listen failed...\n"); 
         exit(0); 
     } 
     else
-        printf("Server listening..\n"); 
+        safePrint("Server listening..\n"); 
     
     while(1) {
         len = sizeof(cli);
@@ -100,11 +100,11 @@ int main() {
         connfd = accept(sockfd, (SA*)&cli, &len);
 
         if (connfd < 0) { 
-            printf("Server accept failed...\n"); 
+            safePrint("Server accept failed...\n"); 
             continue;
         } 
 
-        printf("[SERVER] Prihvacen novi klijent na soketu %d \n", connfd);
+        safePrint("[SERVER] Prihvacen novi klijent na soketu %d \n", connfd);
 
         thread_args_t* args = malloc(sizeof(thread_args_t));
         args->connfd = connfd;

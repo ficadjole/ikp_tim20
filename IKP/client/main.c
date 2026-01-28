@@ -13,10 +13,10 @@ int main(int argc, char const *argv[])
     sockfd = socket(AF_INET,SOCK_STREAM,0);
 
     if(sockfd == -1){
-        printf("Doslo je do greske prilikom kreiranja socketa\n");
+        safePrint("Doslo je do greske prilikom kreiranja socketa\n");
         exit(0);
     }else{
-        printf("Uspesno kreiran socket\n");
+        safePrint("Uspesno kreiran socket\n");
     }
 
     bzero(&servaddr,sizeof(servaddr));
@@ -26,10 +26,10 @@ int main(int argc, char const *argv[])
     servaddr.sin_port = htons(PORT);
 
     if(connect(sockfd,(SA*)&servaddr,sizeof(servaddr)) != 0 ){
-        printf("Konekcija nije uspesno uspotavljena!\n");
+        safePrint("Konekcija nije uspesno uspotavljena!\n");
         exit(0);
     }else{
-        printf("Uspesno ste se povezali na server\n");
+        safePrint("Uspesno ste se povezali na server\n");
     }
 
     unosPodataka(sockfd);
