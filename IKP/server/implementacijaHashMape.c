@@ -81,7 +81,8 @@ void delete(hashMap* hashmap, void *key){
                 prethodniElem->next = trenutniElem->next;
             }
 
-            free(trenutniElem); 
+            free(trenutniElem);
+            hashmap->numOfElements--;
             return;
         }
         prethodniElem = trenutniElem;

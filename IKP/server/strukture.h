@@ -7,31 +7,29 @@
 #include <pthread.h>
 
 typedef struct Segment{
-
-    int dostupnost; //0 dostupno, 1 nije dostupno
+    int dostupnost; 
     size_t velicina;
-    void* adresa; //adresa samog segmenta
-
+    void* adresa; 
 }Segment;
 
 typedef struct SegmentNode {
     Segment data;
     struct SegmentNode* next;
-    struct SegmentNode* prev; //dvostruko spregnuta lista
+    struct SegmentNode* prev;
 }SegmentNode;
 
 typedef struct SegmentList{
     SegmentNode* head;
     SegmentNode* tail;
-    int freeCount; //broj slobodnih segmenata
+    int freeCount;
     int totalCount;
     int numberOfAllocations;
-    int numberOfDeallocations;  //broj alokacija i dealokacija
+    int numberOfDeallocations;
     pthread_mutex_t lock;
 }SegmentList;
 
 typedef struct List{
-    void* key;//ovo ce biti adresa segmenta
+    void* key;
     Segment* segment;
     struct List* next;
 }List;
@@ -40,7 +38,7 @@ typedef struct hashMap{
 
     int numOfElements;
     int capacity;
-    List** lista;//ovo je pocetna adresa liste
+    List** lista;
 
 }hashMap;
 

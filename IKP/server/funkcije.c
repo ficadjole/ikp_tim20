@@ -50,15 +50,28 @@ float calculateFragmentation(SegmentList* list){
 }
 
 void free_memory(SegmentList* list, hashMap* map, void *address){
-    pthread_mutex_lock(&list->lock);
+    
 
     safePrint("\n[DEALLOCATION] ----------------------------------\n");
     safePrint("[THREAD %lu] Pokrenut zahtev za oslobadjanje.\n", (unsigned long)pthread_self());
     safePrint("[INFO] Ciljna adresa: %p\n", address);
 
     safePrint("\nPokazivac: %p\n",address);
+
+    pthread_mutex_lock(&list->lock);
+
+    Segment* seg = search(map,address);
+
+    if(!seg){
+        pthread_mutex_unlock(&list->lock);
+        safePrint("[ERROR] nevalidna daresa %p\n",address);
+        return;
+    }
+
+    seg->dostupnost = 0;
+    list->freeCount++;
+
     delete(map,address);
-    findSegment(list,address);
 
     if(list->freeCount > 5) {
         cleanupSegments(list);
