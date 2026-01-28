@@ -3,6 +3,8 @@
 
 #include "definicijeListe.h"
 
+pthread_mutex_t print_mtx = PTHREAD_MUTEX_INITIALIZER;
+
 void initSegmentList(SegmentList* list) {
     list->head = NULL;
     list->tail = NULL;
@@ -160,14 +162,14 @@ void testListe(){
     printSegmentList(&mojaLista);
 }
 
-void safePrint(char* poruka,...){
-
+void safePrint(char* poruka, ...) {
     va_list args;
     va_start(args, poruka);
-    
-    flockfile(stdout);
-        vprintf(poruka, args);
-    funlockfile(stdout);
+
+    pthread_mutex_lock(&print_mtx);
+    vprintf(poruka, args);
+    fflush(stdout); 
+    pthread_mutex_unlock(&print_mtx);
 
     va_end(args);
 }

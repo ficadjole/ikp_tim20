@@ -11,4 +11,5 @@ void free_memory(SegmentList* list, hashMap* map, void *adresa);
 void cleanupSegments(SegmentList* list);
 char* parsingMessage(SegmentList* list, hashMap* map,char*buffer);
 void printInstr(SegmentList* list);
+void destroyHeapManager(SegmentList* list, hashMap* map);
 #endif // FUNKCIJE_H_INCLUDED

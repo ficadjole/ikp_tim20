@@ -15,6 +15,7 @@ void unosPodataka(int sockfd)
         safePrint(">> 1 - allocate_memory(int velicina)\n");
         safePrint(">> 2 - free_memory(void* adresa)\n");
         safePrint(">> 3 - STRESS TEST (Automatska simulacija) \n");
+        safePrint(">> 4 - EXIT \n");
 
         fgets(buff,sizeof(buff),stdin);
         odabir = atoi(buff);
@@ -61,6 +62,13 @@ void unosPodataka(int sockfd)
             
             safePrint("\n[FINISH] Stress test završen. Pogledajte logove servera.\n");
             continue; 
+        }
+        case 4:
+        {
+            strcpy(buff, "exit");
+            write(sockfd, buff, sizeof(buff));
+            safePrint("Zatvaram klijenta...\n");
+            return;
         }
         default:
             break;

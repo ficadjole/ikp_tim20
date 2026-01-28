@@ -186,6 +186,31 @@ void printInstr(SegmentList* list) {
     safePrint("2) Ukupan broj dealokacija: %d\n", nD);
     safePrint("3) Stepen fragmentacije:    %.2f%%\n", fg);
     safePrint("--------------------------------------\n");
+}
 
+void destroyHeapManager(SegmentList* list, hashMap* map) {
+    SegmentNode* current = list->head;
 
+    while(current != NULL) {
+        SegmentNode* next = current->next;
+        if(current->data.adresa != NULL) {
+            free(current->data.adresa);
+        }
+
+        free(current);
+        current = next;
+    }
+
+    for(int i = 0; i < map->capacity; i++) {
+        List* currMapNode = map->lista[i];
+        while(currMapNode != NULL) {
+            List* nextMapNode = currMapNode->next;
+            free(currMapNode);
+            currMapNode = nextMapNode;
+        }
+    }
+
+    free(map->lista);
+
+    safePrint("[SHUTDOWN] Memorija heap-a i hash mape je potpuno ociscena.\n");
 }

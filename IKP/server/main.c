@@ -7,8 +7,31 @@
 #include "definicijeHashMape.h"
 #include "definicijeListe.h"
 #include "funkcije.h"
+#include <signal.h>
+//pokazivaci za safe exit
+SegmentList* g_heap = NULL;
+hashMap* g_map = NULL;
+int g_sockfd = -1;
 
 #include <pthread.h>
+
+void handle_sigint(int sig) {
+    safePrint("\n[SHUTDOWN] Signal %d (Ctrl + C)...\n", sig);
+
+    if(g_heap && g_map) {
+        pthread_mutex_lock(&g_heap->lock);
+        destroyHeapManager(g_heap, g_map);
+        pthread_mutex_unlock(&g_heap->lock);
+        pthread_mutex_destroy(&g_heap->lock);
+    }
+
+    if(g_sockfd != -1) {
+        close(g_sockfd);
+        safePrint("[SHUTDOWN] Glavni soket zatvoren. Port je slobodan.\n");
+    }
+
+    exit(0);
+}
 
 void func(int connfd, SegmentList* mojHeap, hashMap* mojaMapa) 
 {   
@@ -61,10 +84,16 @@ int main() {
 
     SegmentList mojHeap;
     hashMap mojaMapa;
+
+    g_heap = &mojHeap;
+    g_map = &mojaMapa;
+
+    signal(SIGINT, handle_sigint);
     initializeHeapManager(&mojHeap, &mojaMapa, 10); //prebacila sam ovdje da bi se inicijalizovao zajednicki resurs samo jednom
     pthread_mutex_init(&mojHeap.lock, NULL);
 
     sockfd = socket(AF_INET,SOCK_STREAM,0);
+    g_sockfd = sockfd;
 
     if(sockfd == -1){
         safePrint("Doslo je do greske prilikom kreiranja socketa\n");
